@@ -3,7 +3,8 @@ import hmac
 import hashlib
 import time
 
-from content_safe import api_key,secret_key
+from content_safe_new import api_key,secret_key
+
 
 class ExxApi(object):
 
@@ -49,7 +50,9 @@ class ExxApi(object):
         return data
 
     # 市场深度
-    def get_depth(self,coin_name):
+    def get_depth(self,coin_name=None):
+        if coin_name is None:
+            coin_name = self.coin_name
         url = 'https://api.exx.com/data/v1/depth?currency='+coin_name
         try:
             data = requests.get(url)
@@ -59,7 +62,9 @@ class ExxApi(object):
         return data
 
     # 获取历史成交
-    def get_trades(self,coin_name):
+    def get_trades(self,coin_name=None):
+        if coin_name is None:
+            coin_name = self.coin_name
         url = 'https://api.exx.com/data/v1/trades?currency='+coin_name
         try:
             data = requests.get(url)
@@ -97,7 +102,7 @@ class ExxApi(object):
     # 取消委托
     def get_cancel(self,id):
         id = str(id)
-        secret = 'accesskey='+self.api_key+'&id='+id+'&nonce='+str(int(time.time()*1000))
+        secret = 'accesskey='+self.api_key+'&currency='+self.coin_name+'&id='+id+'&nonce='+str(int(time.time()*1000))
         sign = self.get_sign(secret)
         url = 'https://trade.exx.com/api/cancel?accesskey='+self.api_key+'&currency='+self.coin_name+'&id='+id+'&nonce='+str(int(time.time()*1000))+'&signature='+sign
         try:
@@ -110,17 +115,18 @@ class ExxApi(object):
     # 获取委托买单和卖单详情
     def get_order_data(self,id):
         id = str(id)
-        secret = 'accesskey='+self.api_key+'&id='+'&currency='+self.coin_name+id+'&nonce='+str(int(time.time()*1000))
+        secret = 'accesskey='+self.api_key+'&currency='+self.coin_name+'&id='+id+'&nonce='+str(int(time.time()*1000))
+        print(secret)
         sign = self.get_sign(secret)
-        url = 'https://trade.exx.com/api/getOrder?accesskey='+self.api_key+'&currency='+self.coin_name+'&id='+id+'&nonce='+str(int(time.time()))+'&signature='+sign
+        print(sign)
+        url = 'https://trade.exx.com/api/getOrder?accesskey='+self.api_key+'&currency='+self.coin_name+'&id='+id+'&nonce='+str(int(time.time()*1000))+'&signature='+sign
+        print(url)
         try:
             data = requests.get(url)
             data = data.json()
         except Exception:
             data = self.get_order_data(id)
         return data
-
-        pass
 
     # 获取多个委托卖单买单 10条
     def get_orders_data(self,type):
@@ -197,7 +203,7 @@ class ExxApi(object):
             data = self.withdraw(address,pwd)
         return data
 
-    # 获取用户信息 验证成功
+    # 获取用户信息 验证成功,其他接口没有进行验证，账户没有数据
     def get_balance(self):
         secret = 'accesskey='+self.api_key+'&nonce='+str(int(time.time()*1000))
         sign = self.get_sign(secret)
@@ -212,6 +218,8 @@ class ExxApi(object):
 
 
 if __name__ == '__main__':
+
+    #
     params = {
         'coin_name':'eth_usdt',
         'api_key':api_key,
@@ -219,12 +227,50 @@ if __name__ == '__main__':
     }
     exx = ExxApi(**params)
 
-    data = exx.get_charge_address()
+    # 获取账户信息
+    # data = exx.get_balance()
+    # 下单
+    # params_data = {
+    #     'price':165,
+    #     'amount':1,
+    #     'type':'sell'
+    #
+    # }
+    # data = exx.get_order(**params_data)
+    # print(data)
+
+    # 取消委托单
+    # params_data = {
+    #     'id':65302439
+    # }
+    # data = exx.get_cancel(**params_data)
+    # print(data)
+
+    # 获取市场深度
+    # data = exx.get_depth()
+    # print(data)
+
+    # 获取委托单详情
+    # params_data = {
+    #     'id':'65302432',
+    # }
+    # id = '65302050'
+    # data = exx.get_order_data(id)
+    # print(data)
+
+    # 获取多个委托单详情
+    params_data = {
+        'type':'buy',
+    }
+    data = exx.get_orders_data(**params_data)
     print(data)
 
+    # 获取成交历史
+    # data = exx.get_trades()
+    # print(data)
 
-
-
-
+    # 获取充值地址
+    # data = exx.get_charge_address()
+    # print(data)
 
     pass
