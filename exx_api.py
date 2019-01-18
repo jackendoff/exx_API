@@ -8,7 +8,7 @@ from content_safe_new import api_key,secret_key
 
 class ExxApi(object):
 
-    def __init__(self,coin_name,api_key,secret_key):
+    def __init__(self,coin_name):
         self.coin_name = coin_name
         self.api_key = api_key
         self.secret_key = secret_key
@@ -116,11 +116,8 @@ class ExxApi(object):
     def get_order_data(self,id):
         id = str(id)
         secret = 'accesskey='+self.api_key+'&currency='+self.coin_name+'&id='+id+'&nonce='+str(int(time.time()*1000))
-        print(secret)
         sign = self.get_sign(secret)
-        print(sign)
         url = 'https://trade.exx.com/api/getOrder?accesskey='+self.api_key+'&currency='+self.coin_name+'&id='+id+'&nonce='+str(int(time.time()*1000))+'&signature='+sign
-        print(url)
         try:
             data = requests.get(url)
             data = data.json()
@@ -222,8 +219,6 @@ if __name__ == '__main__':
     #
     params = {
         'coin_name':'eth_usdt',
-        'api_key':api_key,
-        'secret_key':secret_key
     }
     exx = ExxApi(**params)
 
@@ -241,7 +236,7 @@ if __name__ == '__main__':
 
     # 取消委托单
     # params_data = {
-    #     'id':65302439
+    #     'id':68050087
     # }
     # data = exx.get_cancel(**params_data)
     # print(data)
@@ -252,7 +247,7 @@ if __name__ == '__main__':
 
     # 获取委托单详情
     # params_data = {
-    #     'id':'65302432',
+    #     'id':'68054807',
     # }
     # id = '65302050'
     # data = exx.get_order_data(id)
